@@ -4,50 +4,142 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CSSFontFace exploit</title>
-    <link rel="stylesheet" href="includes/style.css" />
+    <link rel="stylesheet" href="includes/tailwind.min.css" />
+    <style>
+      .active {
+        background-color: #16a34a !important;
+        border-color: #15803d !important;
+      }
+      .collapsed {
+        display: none !important;
+      }
+    </style>
   </head>
-  <body>
-    <h1>CSSFontFace UAF Exploit</h1>
-    <h3 id="UA">Running on:</h3>
-    <h3 id="network-status">Mode: <span id="status-text" style="font-weight: bold">Checking...</span></h3>
+  <body class="h-screen w-screen overflow-hidden bg-gray-900 text-gray-200 font-sans flex select-none">
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="absolute bottom-4 right-4 flex flex-col gap-2 z-50 pointer-events-none"></div>
 
-    <hr />
-
-    <div class="btn-container">
-      <form id="kernel-options">
-        <input type="radio" name="kernel" id="netctrl-exploit" value="netctrl" disabled />
-        <label for="netctrl-exploit">NetCtrl</label>
-        <input type="radio" name="kernel" id="lapse-exploit" value="lapse" disabled />
-        <label for="lapse-exploit">Lapse</label>
-      </form>
-      <button id="jeilbrek" disabled>Jeilbrek</button>
-      <div class="jb-options-flex">
-        <button id="autoJbBtn" class="btn-option" disabled>Auto Jailbreak: OFF</button>
-        <button id="instantJbBtn" class="btn-option" disabled>Instant Jailbreak: OFF</button>
+    <!-- LEFT PANEL: Controls & Info -->
+    <div class="flex-1 flex flex-col bg-gray-900 border-r border-gray-700 h-full">
+      <div class="p-4 border-b border-gray-700 flex justify-between items-start">
+        <div>
+          <h1 class="text-xl font-bold text-white mb-1">CSSFontFace UAF</h1>
+          <div class="text-xs text-gray-400 mb-1">
+            Firmware: <span id="fw-ver" class="text-white font-bold">Detecting...</span>
+          </div>
+          <div class="text-xs text-gray-400 flex items-center gap-1">
+            Mode: <span id="status-text" class="font-bold text-blue-400">Checking...</span
+            ><svg
+              id="caching-spinner"
+              class="animate-spin h-3 w-3 text-blue-400"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+          </div>
+        </div>
+        <button
+          id="clear-cache-btn"
+          class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-1 px-2 rounded transition-colors border border-red-500 shadow"
+        >
+          Clear Cache
+        </button>
       </div>
-      <div class="stats-container mt-2">
-        <span>Pass: <strong id="pass-count">0</strong></span> |
-        <span>Fail: <strong id="fail-count">0</strong></span>
+
+      <div class="p-4 border-b border-gray-700">
+        <div class="text-xs text-gray-400 mb-2 font-bold uppercase tracking-wider">Exploit Chain</div>
+        <div class="flex gap-2 mb-4" id="kernel-options">
+          <button
+            id="netctrl-btn"
+            class="flex-1 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600 rounded py-2 text-sm font-bold transition-colors"
+            disabled
+          >
+            NetCtrl
+          </button>
+          <button
+            id="lapse-btn"
+            class="flex-1 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600 rounded py-2 text-sm font-bold transition-colors"
+            disabled
+          >
+            Lapse
+          </button>
+        </div>
+
+        <button
+          id="jeilbrek"
+          disabled
+          class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2 rounded mb-3 transition-colors"
+        >
+          Jeilbrek
+        </button>
+
+        <div class="flex gap-2 mb-3">
+          <button
+            id="autoJbBtn"
+            class="flex-1 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600 rounded py-2 text-xs font-semibold transition-colors"
+            disabled
+          >
+            Auto: OFF
+          </button>
+          <button
+            id="instantJbBtn"
+            class="flex-1 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600 rounded py-2 text-xs font-semibold transition-colors"
+            disabled
+          >
+            Instant: OFF
+          </button>
+        </div>
+
+        <div class="text-xs text-gray-400 flex justify-between">
+          <span>Pass: <strong id="pass-count" class="text-green-500">0</strong></span>
+          <span>Fail: <strong id="fail-count" class="text-red-500">0</strong></span>
+        </div>
+      </div>
+
+      <div class="p-4 border-b border-gray-700 flex flex-col gap-2">
+        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider">Custom Payload</label>
+        <input type="file" id="custom-payload-input" class="hidden" accept=".bin" />
+        <button
+          id="custom-payload-btn"
+          class="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold py-2 rounded transition-colors w-full shadow"
+          disabled
+        >
+          Select & Run .bin File
+        </button>
+      </div>
+
+      <div id="payloads-section" class="flex-1 flex flex-col overflow-hidden">
+        <div class="p-4 pb-2 border-b border-gray-700">
+          <h2 class="text-sm font-bold text-blue-400 uppercase tracking-wider">Available Payloads</h2>
+        </div>
+        <div id="payloads-list" class="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+          <p class="empty-msg text-xs text-gray-500 italic">Loading payloads from manifest...</p>
+        </div>
       </div>
     </div>
 
-    <div class="main-layout">
-      <!-- Payloads Section -->
-      <div id="payloads-section" class="payloads-section">
-        <h2>Available Payloads</h2>
-        <div id="payloads-list" class="payloads-list">
-          <p class="empty-msg">Loading payloads from manifest...</p>
-        </div>
+    <!-- RIGHT PANEL: Console -->
+    <div id="console-wrapper" class="w-3/5 flex flex-col bg-black h-full">
+      <div class="bg-gray-800 px-4 py-2 flex justify-between items-center border-b border-gray-700">
+        <span class="text-xs font-bold text-blue-400">System Console Log</span>
+        <!-- <button
+          id="toggle-console-btn"
+          class="text-xs bg-gray-700 hover:bg-gray-600 text-white px-2 py-1 rounded transition-colors border border-gray-600"
+        >
+          Hide Console [-]
+        </button> -->
       </div>
-
-      <!-- Console Log Section with Header Toggle -->
-      <div id="console-wrapper" class="console-wrapper">
-        <div class="console-header">
-          <span class="console-title">System Console Log</span>
-          <button id="toggle-console-btn" class="btn-toggle">Hide Console [-]</button>
-        </div>
-        <pre id="console">Initializing cache...</pre>
-      </div>
+      <pre
+        id="console"
+        class="flex-1 overflow-y-auto p-4 text-xs text-green-400 font-mono break-words whitespace-pre-wrap"
+      >Initializing cache...<br/></pre>
     </div>
 
     <script src="src/manifest.js"></script>

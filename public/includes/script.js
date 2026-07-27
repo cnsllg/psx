@@ -2,7 +2,7 @@ let timerId = null;
 const autoJbBtn = document.getElementById("autoJbBtn");
 const instantJbBtn = document.getElementById("instantJbBtn");
 const jeilbrekBtn = document.getElementById("jeilbrek");
-const UAElement = document.getElementById("UA");
+const fwVerElement = document.getElementById("fw-ver");
 const consoleElem = document.getElementById("console");
 
 const storedAutoJb = localStorage.getItem("autoJb");
@@ -11,17 +11,54 @@ let autoJbValue = storedAutoJb !== null ? storedAutoJb === "true" : true;
 const storedInstantJb = localStorage.getItem("instantJb");
 let instantJbValue = storedInstantJb !== null ? storedInstantJb === "true" : false;
 
-// choose one of kernel exploits
 var exploitChain = localStorage.getItem("exploitChain") || "lapse";
-const netctrlRadio = document.getElementById("netctrl-exploit");
-const lapseRadio = document.getElementById("lapse-exploit");
-const kexForm = document.getElementById("kernel-options");
+const netctrlBtn = document.getElementById("netctrl-btn");
+const lapseBtn = document.getElementById("lapse-btn");
 
 let isCacheFinished = false;
 
-// Show user agent
-if (UAElement) {
-  UAElement.innerText += " " + navigator.userAgent;
+if (fwVerElement) {
+  const ua = navigator.userAgent;
+  const matches = ua.match(/PlayStation\s+(\d+)[/ ](\d+)\.(\d+)/);
+  if (matches) {
+    const fwMajor = parseInt(matches[2], 10);
+    const fwMinor = parseInt(matches[3], 16);
+    fwVerElement.textContent = `PS${matches[1]} ${fwMajor}.${fwMinor.toString(16).padStart(2, "0")}`;
+    fwVerElement.className = "text-green-400 font-bold";
+  } else {
+    fwVerElement.textContent = "Unknown/Not PS4";
+    fwVerElement.className = "text-red-500 font-bold";
+  }
+}
+
+function updateKexBtnUI() {
+  if (exploitChain === "netctrl") {
+    if (netctrlBtn) netctrlBtn.classList.add("bg-blue-600", "border-blue-500", "text-white");
+    if (netctrlBtn) netctrlBtn.classList.remove("bg-gray-800", "border-gray-600");
+    if (lapseBtn) lapseBtn.classList.add("bg-gray-800", "border-gray-600");
+    if (lapseBtn) lapseBtn.classList.remove("bg-blue-600", "border-blue-500", "text-white");
+  } else {
+    if (lapseBtn) lapseBtn.classList.add("bg-blue-600", "border-blue-500", "text-white");
+    if (lapseBtn) lapseBtn.classList.remove("bg-gray-800", "border-gray-600");
+    if (netctrlBtn) netctrlBtn.classList.add("bg-gray-800", "border-gray-600");
+    if (netctrlBtn) netctrlBtn.classList.remove("bg-blue-600", "border-blue-500", "text-white");
+  }
+}
+
+if (netctrlBtn) {
+  netctrlBtn.addEventListener("click", () => {
+    exploitChain = "netctrl";
+    localStorage.setItem("exploitChain", exploitChain);
+    updateKexBtnUI();
+  });
+}
+
+if (lapseBtn) {
+  lapseBtn.addEventListener("click", () => {
+    exploitChain = "lapse";
+    localStorage.setItem("exploitChain", exploitChain);
+    updateKexBtnUI();
+  });
 }
 
 // Helper to log directly to the HTML console element
@@ -31,12 +68,6 @@ function logConsole(msg, type = "info") {
   consoleElem.append(`${prefix}${msg}\n`);
   consoleElem.scrollTop = consoleElem.scrollHeight;
 }
-
-kexForm.addEventListener("change", function (event) {
-  localStorage.setItem("exploitChain", event.target.value);
-  exploitChain = event.target.value;
-});
-
 let passCount = parseInt(localStorage.getItem("exploit_pass") || "0", 10);
 let failCount = parseInt(localStorage.getItem("exploit_fail") || "0", 10);
 const passCountElem = document.getElementById("pass-count");
@@ -104,11 +135,10 @@ function renderPayloadsList(assets) {
   const payloadFiles = assets.filter((path) => path.startsWith("src/payloads/"));
 
   if (payloadFiles.length === 0) {
-    payloadsListElem.innerHTML = `<p class="empty-msg">No extra payloads found in manifest.</p>`;
+    payloadsListElem.innerHTML = `<p class="text-xs text-gray-500 italic">No extra payloads found in manifest.</p>`;
     return;
   }
 
-  payloadsListElem.className = "payloads-grid";
   payloadsListElem.innerHTML = "";
 
   const savedAutoPayloads = JSON.parse(localStorage.getItem("autoPayloads") || "{}");
@@ -119,15 +149,15 @@ function renderPayloadsList(assets) {
     const isAuto = !!savedAutoPayloads[path];
 
     const card = document.createElement("div");
-    card.className = "payload-card";
+    card.className = "bg-gray-800 border border-gray-700 rounded p-3 flex flex-col justify-between gap-2";
     card.innerHTML = `
       <div>
-        <div class="payload-title">${displayName}</div>
-        <div class="payload-file">${path}</div>
+        <div class="font-bold text-sm text-gray-100 break-all">${displayName}</div>
+        <div class="text-xs text-gray-500 mt-1 break-all">${path}</div>
       </div>
-      <div style="display: flex; gap: 8px; margin-top: 10px;">
-        <button class="btn-payload" disabled data-path="${path}" style="flex: 2;">Run</button>
-        <button class="btn-payload-auto ${isAuto ? 'active' : ''}" data-path="${path}" style="flex: 1; font-size: 12px; padding: 5px;">Auto: ${isAuto ? 'ON' : 'OFF'}</button>
+      <div class="flex gap-2 mt-1">
+        <button class="btn-payload w-2/3 bg-green-600 hover:bg-green-700 disabled:bg-green-900 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold py-1 px-2 rounded transition-colors" disabled data-path="${path}">Run</button>
+        <button class="btn-payload-auto w-1/3 bg-gray-700 hover:bg-gray-600 text-white text-xs font-bold py-1 px-2 rounded transition-colors border border-gray-600 ${isAuto ? "active" : ""}" data-path="${path}">Auto: ${isAuto ? "ON" : "OFF"}</button>
       </div>
     `;
 
@@ -178,15 +208,15 @@ function updatePayloadButtonsState() {
 
 async function runAutoPayloads() {
   const savedAutoPayloads = JSON.parse(localStorage.getItem("autoPayloads") || "{}");
-  const payloadPaths = Object.keys(savedAutoPayloads).filter(path => savedAutoPayloads[path]);
-  
+  const payloadPaths = Object.keys(savedAutoPayloads).filter((path) => savedAutoPayloads[path]);
+
   if (payloadPaths.length > 0) {
     logConsole(`Found ${payloadPaths.length} auto-payload(s). Executing...`, "info");
     for (const path of payloadPaths) {
       if (typeof run_standalone_payload === "function") {
         await run_standalone_payload(path);
         // Small delay between payloads to prevent race conditions or crashes
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise((resolve) => setTimeout(resolve, 1500));
       }
     }
     logConsole(`Auto-payload execution finished!`, "info");
@@ -203,6 +233,12 @@ window.onExploitSuccess = async function () {
   }
   logConsole("Exploit executed successfully!", "info");
   incrementPass();
+  
+  if (autoJbBtn) autoJbBtn.disabled = false;
+  if (instantJbBtn) instantJbBtn.disabled = false;
+  if (netctrlBtn) netctrlBtn.disabled = false;
+  if (lapseBtn) lapseBtn.disabled = false;
+  
   updatePayloadButtonsState(); // Enable extra payload buttons post-jailbreak!
   collapseConsole(); // Automatically close console on exploit success to give more room for payloads!
   await runAutoPayloads();
@@ -218,7 +254,15 @@ window.onExploitAlreadyDone = async function () {
   }
   logConsole("System is ALREADY jailbroken! Exploit bypassed safely.", "warn");
   document.title = "\u2713 Already Jailbroken";
-  if (autoJbBtn) autoJbBtn.textContent = "Already Jailbroken";
+  
+  if (autoJbBtn) {
+    autoJbBtn.textContent = "Already Jailbroken";
+    autoJbBtn.disabled = false;
+  }
+  if (instantJbBtn) instantJbBtn.disabled = false;
+  if (netctrlBtn) netctrlBtn.disabled = false;
+  if (lapseBtn) lapseBtn.disabled = false;
+  
   jeilbrekBtn.disabled = true;
   updatePayloadButtonsState(); // Enable extra payload buttons directly!
   collapseConsole();
@@ -235,6 +279,13 @@ window.onExploitFail = function (reason) {
   }
   logConsole(`Exploit failed: ${reason}`, "error");
   incrementFail();
+
+  if (autoJbBtn) autoJbBtn.disabled = false;
+  if (instantJbBtn) instantJbBtn.disabled = false;
+  if (netctrlBtn) netctrlBtn.disabled = false;
+  if (lapseBtn) lapseBtn.disabled = false;
+  jeilbrekBtn.disabled = false;
+
   updatePayloadButtonsState();
 };
 
@@ -242,8 +293,6 @@ function runJbWithTimeout() {
   if (!isCacheFinished || isExploitRunning) return;
   isExploitRunning = true;
   jeilbrekBtn.disabled = true;
-  netctrlRadio.disabled = true;
-  lapseRadio.disabled = true;
   if (autoJbBtn) autoJbBtn.disabled = true;
   if (instantJbBtn) instantJbBtn.disabled = true;
   updatePayloadButtonsState();
@@ -282,36 +331,21 @@ function updateBtnState(btn, isActive, textOn, textOff) {
 }
 
 if (autoJbBtn) {
-  autoJbBtn.addEventListener("click", function () {
+  autoJbBtn.addEventListener("click", () => {
     autoJbValue = !autoJbValue;
     localStorage.setItem("autoJb", autoJbValue);
     updateBtnState(autoJbBtn, autoJbValue, "Auto Jailbreak: ON", "Auto Jailbreak: OFF");
-    if (!isCacheFinished) return;
-
-    if (autoJbValue && jeilbrekBtn.disabled == false) {
-      if (instantJbValue) {
-        runJbWithTimeout();
-      } else {
-        jailbreakCountdown();
-      }
-      return;
-    }
-
+    
+    // Stop any existing countdown if user interacts with this setting
     stopInterval();
   });
 }
 
 if (instantJbBtn) {
-  instantJbBtn.addEventListener("click", function () {
+  instantJbBtn.addEventListener("click", () => {
     instantJbValue = !instantJbValue;
     localStorage.setItem("instantJb", instantJbValue);
     updateBtnState(instantJbBtn, instantJbValue, "Instant Jailbreak: ON", "Instant Jailbreak: OFF");
-    if (!isCacheFinished) return;
-
-    if (instantJbValue && jeilbrekBtn.disabled == false) {
-      runJbWithTimeout();
-      return;
-    }
   });
 }
 
@@ -342,36 +376,45 @@ function jailbreakCountdown() {
   }, 1000);
 }
 
-function finishCache(statusMessage, isError = false) {
-  if (isCacheFinished) return;
+function handleCacheFail(statusMessage) {
   isCacheFinished = true;
-
-  if (isError) {
-    document.title = "X Cache Error";
+  stopCachingSpinner();
+  document.title = "X Cache Error";
     logConsole(statusMessage, "error");
     logConsole("CACHE ERROR: Process locked! Exploit & controls are disabled.", "error");
 
     // Strictly lock UI elements when caching fails
     jeilbrekBtn.disabled = true;
-    netctrlRadio.disabled = true;
-    lapseRadio.disabled = true;
+    if (netctrlBtn) netctrlBtn.disabled = true;
+    if (lapseBtn) lapseBtn.disabled = true;
     if (autoJbBtn) autoJbBtn.disabled = true;
     if (instantJbBtn) instantJbBtn.disabled = true;
     updatePayloadButtonsState();
     stopInterval();
     return;
+}
+
+function finishCache(statusMessage, isError = false) {
+  if (isCacheFinished) return;
+  if (isError) {
+    handleCacheFail(statusMessage);
+    return;
   }
 
+  isCacheFinished = true;
   logConsole(statusMessage, "info");
-  logConsole("Caching phase complete. System controls enabled.", "info");
+  logConsole("Caching complete.", "info");
+  stopCachingSpinner();
 
-  // Enable UI elements ONLY when caching succeeds
-  jeilbrekBtn.disabled = false;
-  netctrlRadio.disabled = false;
-  lapseRadio.disabled = false;
-  if (autoJbBtn) autoJbBtn.disabled = false;
-  if (instantJbBtn) instantJbBtn.disabled = false;
-  updatePayloadButtonsState();
+  // Enable UI elements ONLY when caching succeeds and exploit isn't already running/done
+  if (!isJailbreakSuccessful) {
+    jeilbrekBtn.disabled = false;
+    if (netctrlBtn) netctrlBtn.disabled = false;
+    if (lapseBtn) lapseBtn.disabled = false;
+    if (autoJbBtn) autoJbBtn.disabled = false;
+    if (instantJbBtn) instantJbBtn.disabled = false;
+    updatePayloadButtonsState();
+  } 
 
   // Start auto jailbreak countdown ONLY after caching is successfully finished
   if (instantJbValue) {
@@ -529,11 +572,14 @@ document.addEventListener("DOMContentLoaded", function () {
     if (statusText) {
       if (navigator.onLine) {
         statusText.textContent = "Online";
-        statusText.style.color = "green";
+        statusText.className = "font-bold text-green-400";
       } else {
         statusText.textContent = "Offline (Cached)";
-        statusText.style.color = "blue";
+        statusText.className = "font-bold text-blue-400";
       }
+    }
+    if (!navigator.onLine) {
+      stopCachingSpinner();
     }
   }
   window.addEventListener("online", updateNetworkStatus);
@@ -541,11 +587,7 @@ document.addEventListener("DOMContentLoaded", function () {
   updateNetworkStatus();
 
   // Choose preferred exploit chain
-  if (exploitChain == "netctrl") {
-    netctrlRadio.checked = true;
-  } else {
-    lapseRadio.checked = true;
-  }
+  updateKexBtnUI();
 
   // Apply autojb localStorage value
   updateBtnState(autoJbBtn, autoJbValue, "Auto Jailbreak: ON", "Auto Jailbreak: OFF");
@@ -553,11 +595,118 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Ensure buttons remain disabled initially
   jeilbrekBtn.disabled = true;
-  netctrlRadio.disabled = true;
-  lapseRadio.disabled = true;
+  if (netctrlBtn) netctrlBtn.disabled = true;
+  if (lapseBtn) lapseBtn.disabled = true;
   if (autoJbBtn) autoJbBtn.disabled = true;
   if (instantJbBtn) instantJbBtn.disabled = true;
 
   // Start caching process
   handleCache();
 });
+
+// --- NEW FEATURES ---
+
+// Toast Notifications
+function showToast(message, type = "info") {
+  const toastContainer = document.getElementById("toast-container");
+  if (!toastContainer) return;
+  
+  const toast = document.createElement("div");
+  let bgColor = "bg-blue-600";
+  if (type === "error") bgColor = "bg-red-600";
+  if (type === "warn") bgColor = "bg-yellow-600";
+  if (type === "success") bgColor = "bg-green-600";
+
+  toast.className = `${bgColor} text-white px-4 py-2 rounded shadow-lg text-sm font-bold opacity-0 transition-opacity duration-300`;
+  toast.textContent = message;
+  
+  toastContainer.appendChild(toast);
+  
+  // Fade in
+  setTimeout(() => toast.classList.remove("opacity-0"), 10);
+  
+  // Fade out and remove
+  setTimeout(() => {
+    toast.classList.add("opacity-0");
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+// Update Network Status to hide spinner
+function stopCachingSpinner() {
+  const spinner = document.getElementById("caching-spinner");
+  if (spinner) spinner.classList.add("hidden");
+}
+
+// Intercept original logConsole to also show toasts for important events
+const originalLogConsole = logConsole;
+logConsole = function(msg, type = "info") {
+  originalLogConsole(msg, type);
+  if (msg.includes("successfully!") || msg.includes("ALREADY")) {
+    showToast(msg, "success");
+  } else if (type === "error") {
+    showToast(msg, "error");
+  }
+};
+
+// Force Clear Cache
+const clearCacheBtn = document.getElementById("clear-cache-btn");
+if (clearCacheBtn) {
+  clearCacheBtn.addEventListener("click", async () => {
+    if ('serviceWorker' in navigator) {
+      try {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (let registration of registrations) {
+          await registration.unregister();
+        }
+      } catch(e) {}
+    }
+    showToast("Clearing cache and reloading...", "warn");
+    setTimeout(() => window.location.reload(true), 1000);
+  });
+}
+
+// Custom Payload Execution
+const customPayloadBtn = document.getElementById("custom-payload-btn");
+const customPayloadInput = document.getElementById("custom-payload-input");
+
+if (customPayloadBtn && customPayloadInput) {
+  customPayloadBtn.addEventListener("click", () => {
+    if (!isJailbreakSuccessful) {
+      showToast("Jailbreak required first!", "error");
+      return;
+    }
+    customPayloadInput.click();
+  });
+
+  customPayloadInput.addEventListener("change", function () {
+    if (this.files && this.files.length > 0) {
+      const file = this.files[0];
+      const reader = new FileReader();
+      
+      reader.onload = function (e) {
+        const buffer = new Uint8Array(e.target.result);
+        logConsole(`Executing custom payload: ${file.name} (${buffer.length} bytes)`, "info");
+        showToast(`Running ${file.name}`, "success");
+        
+        if (typeof load_bin === "function") {
+          try {
+            load_bin(buffer);
+          } catch(err) {
+            logConsole(`Custom payload error: ${err.message}`, "error");
+          }
+        } else {
+          logConsole("load_bin function not available.", "error");
+        }
+      };
+      
+      reader.onerror = function () {
+        logConsole(`Error reading file: ${file.name}`, "error");
+      };
+      
+      reader.readAsArrayBuffer(file);
+    }
+    // Reset input so the same file can be selected again if needed
+    this.value = "";
+  });
+}

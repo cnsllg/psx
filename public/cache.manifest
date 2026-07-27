@@ -1,9 +1,9 @@
 CACHE MANIFEST
-# Generated at 2026-07-27 19:58:04
+# Generated at 2026-07-27 21:02:20
 
 CACHE:
 includes/script.js
-includes/style.css
+includes/tailwind.min.css
 index.html
 src/lapse.js
 src/loader.js
