@@ -1,0 +1,378 @@
+/* Base Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  background-color: #111827; /* gray-900 */
+  color: #e5e7eb; /* gray-200 */
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* Utilities */
+.hidden {
+  display: none !important;
+}
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+.text-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+.text-xl {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+.text-left {
+  text-align: left;
+}
+.text-center {
+  text-align: center;
+}
+.font-bold {
+  font-weight: 700;
+}
+.font-semibold {
+  font-weight: 600;
+}
+.font-mono {
+  font-family: monospace;
+}
+.select-none {
+  user-select: none;
+  -webkit-user-select: none;
+}
+.text-white {
+  color: #fff;
+}
+.text-gray-100 {
+  color: #f3f4f6;
+}
+.text-gray-200 {
+  color: #e5e7eb;
+}
+.text-gray-400 {
+  color: #9ca3af;
+}
+.text-gray-500 {
+  color: #6b7280;
+}
+.text-blue-400 {
+  color: #60a5fa;
+}
+.text-green-500 {
+  color: #22c55e;
+}
+.text-green-400 {
+  color: #4ade80;
+}
+.text-red-500 {
+  color: #ef4444;
+}
+.uppercase {
+  text-transform: uppercase;
+}
+.tracking-wider {
+  letter-spacing: 0.05em;
+}
+.italic {
+  font-style: italic;
+}
+.flex {
+  display: flex;
+}
+.flex-1 {
+  flex: 1 1 0%;
+}
+.flex-col {
+  flex-direction: column;
+}
+.justify-between {
+  justify-content: space-between;
+}
+.items-center {
+  align-items: center;
+}
+.items-start {
+  align-items: flex-start;
+}
+.gap-1 {
+  gap: 0.25rem;
+}
+.gap-2 {
+  gap: 0.5rem;
+}
+.gap-3 {
+  gap: 0.75rem;
+}
+.mb-1 {
+  margin-bottom: 0.25rem;
+}
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+.mb-3 {
+  margin-bottom: 0.75rem;
+}
+.mb-4 {
+  margin-bottom: 1rem;
+}
+.mt-1 {
+  margin-top: 0.25rem;
+}
+.p-2 {
+  padding: 0.5rem;
+}
+.p-3 {
+  padding: 0.75rem;
+}
+.p-4 {
+  padding: 1rem;
+}
+.pb-2 {
+  padding-bottom: 0.5rem;
+}
+.py-1 {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+.py-2 {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+.px-2 {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+.px-4 {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+.w-full {
+  width: 100%;
+}
+.w-1\/3 {
+  width: 33.333333%;
+}
+.w-2\/3 {
+  width: 66.666667%;
+}
+.w-3\/5 {
+  width: 60%;
+}
+.h-full {
+  height: 100%;
+}
+.overflow-hidden {
+  overflow: hidden;
+}
+.overflow-y-auto {
+  overflow-y: auto;
+}
+.rounded {
+  border-radius: 0.25rem;
+}
+.border {
+  border-width: 1px;
+  border-style: solid;
+}
+.border-b {
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+}
+.border-r {
+  border-right-width: 1px;
+  border-right-style: solid;
+}
+.border-gray-600 {
+  border-color: #4b5563;
+}
+.border-gray-700 {
+  border-color: #374151;
+}
+.bg-black {
+  background-color: #000;
+}
+.bg-gray-600 {
+  background-color: #4b5563;
+}
+.bg-gray-700 {
+  background-color: #374151;
+}
+.bg-gray-800 {
+  background-color: #1f2937;
+}
+.bg-gray-900 {
+  background-color: #111827;
+}
+.bg-blue-600 {
+  background-color: #2563eb;
+}
+.bg-red-600 {
+  background-color: #dc2626;
+}
+.bg-green-600 {
+  background-color: #16a34a;
+}
+.bg-yellow-600 {
+  background-color: #ca8a04;
+}
+.break-words {
+  word-wrap: break-word;
+}
+.break-all {
+  word-break: break-all;
+}
+.whitespace-pre-wrap {
+  white-space: pre-wrap;
+}
+.shadow {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+.shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+.transition-colors {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+.transition-opacity {
+  transition-property: opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+.duration-300 {
+  transition-duration: 300ms;
+}
+.opacity-0 {
+  opacity: 0;
+}
+.opacity-50 {
+  opacity: 0.5;
+}
+.pointer-events-none {
+  pointer-events: none;
+}
+.absolute {
+  position: absolute;
+}
+.bottom-4 {
+  bottom: 1rem;
+}
+.right-4 {
+  right: 1rem;
+}
+.z-50 {
+  z-index: 50;
+}
+
+/* Panels */
+#left-panel {
+  flex: 1;
+  border-right: 1px solid #374151;
+  display: flex;
+  flex-direction: column;
+}
+#console-section {
+  width: 60%;
+  display: flex;
+  flex-direction: column;
+  background-color: #000;
+}
+
+/* Buttons */
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+}
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.hover\:bg-gray-600:hover:not(:disabled) {
+  background-color: #4b5563;
+}
+.hover\:bg-gray-700:hover:not(:disabled) {
+  background-color: #374151;
+}
+.hover\:bg-red-700:hover:not(:disabled) {
+  background-color: #b91c1c;
+}
+.hover\:bg-blue-700:hover:not(:disabled) {
+  background-color: #1d4ed8;
+}
+.hover\:bg-green-700:hover:not(:disabled) {
+  background-color: #15803d;
+}
+.disabled\:bg-gray-700:disabled {
+  background-color: #374151;
+}
+.disabled\:bg-green-900:disabled {
+  background-color: #14532d;
+}
+.disabled\:opacity-50:disabled {
+  opacity: 0.5;
+}
+.disabled\:cursor-not-allowed:disabled {
+  cursor: not-allowed;
+}
+
+/* Status Text Dynamic */
+.text-green-400 {
+  color: #4ade80 !important;
+}
+.text-blue-400 {
+  color: #60a5fa !important;
+}
+
+/* Toasts */
+#toast-container {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 50;
+  pointer-events: none;
+}
+.toast {
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  transition: opacity 300ms;
+  pointer-events: none;
+}
+.toast.bg-blue-600 {
+  background-color: #2563eb;
+}
+.toast.bg-red-600 {
+  background-color: #dc2626;
+}
+.toast.bg-yellow-600 {
+  background-color: #ca8a04;
+}
+.toast.bg-green-600 {
+  background-color: #16a34a;
+}

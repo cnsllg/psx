@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CSSFontFace exploit</title>
-    <link rel="stylesheet" href="includes/tailwind.min.css" />
+    <link rel="stylesheet" href="includes/style.css" />
     <style>
       .active {
         background-color: #16a34a !important;
@@ -27,27 +27,13 @@
           <div class="text-xs text-gray-400 mb-1">
             Firmware: <span id="fw-ver" class="text-white font-bold">Detecting...</span>
           </div>
-          <div class="text-xs text-gray-400 flex items-center gap-1">
-            Mode: <span id="status-text" class="font-bold text-blue-400">Checking...</span
-            ><svg
-              id="caching-spinner"
-              class="animate-spin h-3 w-3 text-blue-400"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path
-                class="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
+          <div class="text-xs text-gray-400">
+            Mode: <span id="status-text" class="font-bold text-blue-400">Checking...</span>
           </div>
         </div>
         <button
           id="clear-cache-btn"
-          class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-1 px-2 rounded transition-colors border border-red-500 shadow"
+          class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-1 px-2 rounded transition-colors"
         >
           Clear Cache
         </button>
@@ -58,14 +44,14 @@
         <div class="flex gap-2 mb-4" id="kernel-options">
           <button
             id="netctrl-btn"
-            class="flex-1 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600 rounded py-2 text-sm font-bold transition-colors"
+            class="flex-1 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed rounded py-2 text-sm font-bold text-white transition-colors"
             disabled
           >
             NetCtrl
           </button>
           <button
             id="lapse-btn"
-            class="flex-1 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600 rounded py-2 text-sm font-bold transition-colors"
+            class="flex-1 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed rounded py-2 text-sm font-bold text-white transition-colors"
             disabled
           >
             Lapse
@@ -83,14 +69,14 @@
         <div class="flex gap-2 mb-3">
           <button
             id="autoJbBtn"
-            class="flex-1 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600 rounded py-2 text-xs font-semibold transition-colors"
+            class="flex-1 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600 rounded py-2 text-xs font-semibold text-white transition-colors"
             disabled
           >
             Auto: OFF
           </button>
           <button
             id="instantJbBtn"
-            class="flex-1 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600 rounded py-2 text-xs font-semibold transition-colors"
+            class="flex-1 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600 rounded py-2 text-xs font-semibold text-white transition-colors"
             disabled
           >
             Instant: OFF
