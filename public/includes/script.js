@@ -1,12 +1,15 @@
 let timerId = null;
-const label = document.getElementById("autoJbLabel");
-const checkbox = document.getElementById("autoJbInput");
+const autoJbBtn = document.getElementById("autoJbBtn");
+const instantJbBtn = document.getElementById("instantJbBtn");
 const jeilbrekBtn = document.getElementById("jeilbrek");
 const UAElement = document.getElementById("UA");
 const consoleElem = document.getElementById("console");
 
 const storedAutoJb = localStorage.getItem("autoJb");
 let autoJbValue = storedAutoJb !== null ? storedAutoJb === "true" : true;
+
+const storedInstantJb = localStorage.getItem("instantJb");
+let instantJbValue = storedInstantJb !== null ? storedInstantJb === "true" : false;
 
 // choose one of kernel exploits
 var exploitChain = localStorage.getItem("exploitChain") || "lapse";
@@ -173,7 +176,7 @@ window.onExploitAlreadyDone = function () {
   }
   logConsole("System is ALREADY jailbroken! Exploit bypassed safely.", "warn");
   document.title = "\u2713 Already Jailbroken";
-  label.textContent = "Already Jailbroken";
+  if (autoJbBtn) autoJbBtn.textContent = "Already Jailbroken";
   jeilbrekBtn.disabled = true;
   updatePayloadButtonsState(); // Enable extra payload buttons directly!
   collapseConsole();
@@ -198,7 +201,8 @@ function runJbWithTimeout() {
   jeilbrekBtn.disabled = true;
   netctrlRadio.disabled = true;
   lapseRadio.disabled = true;
-  checkbox.disabled = true;
+  if (autoJbBtn) autoJbBtn.disabled = true;
+  if (instantJbBtn) instantJbBtn.disabled = true;
   updatePayloadButtonsState();
   stopInterval();
 
@@ -210,7 +214,7 @@ function runJbWithTimeout() {
       logConsole("Exploit TIMEOUT reached (30 seconds exceeded)!", "error");
       incrementFail();
       updatePayloadButtonsState();
-      label.textContent = "Timed Out";
+      if (autoJbBtn) autoJbBtn.textContent = "Timed Out";
       document.title = "X Exploit Timeout";
     }
   }, EXPLOIT_TIMEOUT_MS);
@@ -223,24 +227,57 @@ jeilbrekBtn.addEventListener("click", function (e) {
   runJbWithTimeout();
 });
 
-checkbox.addEventListener("change", function () {
-  localStorage.setItem("autoJb", checkbox.checked);
-  if (!isCacheFinished) return;
-
-  if (checkbox.checked == true && jeilbrekBtn.disabled == false) {
-    jailbreakCountdown();
-    return;
+function updateBtnState(btn, isActive, textOn, textOff) {
+  if (!btn) return;
+  if (isActive) {
+    btn.classList.add("active");
+    btn.textContent = textOn;
+  } else {
+    btn.classList.remove("active");
+    btn.textContent = textOff;
   }
+}
 
-  stopInterval();
-});
+if (autoJbBtn) {
+  autoJbBtn.addEventListener("click", function () {
+    autoJbValue = !autoJbValue;
+    localStorage.setItem("autoJb", autoJbValue);
+    updateBtnState(autoJbBtn, autoJbValue, "Auto Jailbreak: ON", "Auto Jailbreak: OFF");
+    if (!isCacheFinished) return;
+
+    if (autoJbValue && jeilbrekBtn.disabled == false) {
+      if (instantJbValue) {
+        runJbWithTimeout();
+      } else {
+        jailbreakCountdown();
+      }
+      return;
+    }
+
+    stopInterval();
+  });
+}
+
+if (instantJbBtn) {
+  instantJbBtn.addEventListener("click", function () {
+    instantJbValue = !instantJbValue;
+    localStorage.setItem("instantJb", instantJbValue);
+    updateBtnState(instantJbBtn, instantJbValue, "Instant Jailbreak: ON", "Instant Jailbreak: OFF");
+    if (!isCacheFinished) return;
+
+    if (instantJbValue && jeilbrekBtn.disabled == false) {
+      runJbWithTimeout();
+      return;
+    }
+  });
+}
 
 function stopInterval() {
   if (timerId !== null) {
     clearInterval(timerId);
     timerId = null;
   }
-  label.textContent = "Auto Jailbreak";
+  updateBtnState(autoJbBtn, autoJbValue, "Auto Jailbreak: ON", "Auto Jailbreak: OFF");
 }
 
 function jailbreakCountdown() {
@@ -248,15 +285,15 @@ function jailbreakCountdown() {
   if (!isCacheFinished || isExploitRunning) return;
 
   let countdown = 5;
-  label.textContent = `Auto Jailbreaking in: ${countdown}`;
+  if (autoJbBtn) autoJbBtn.textContent = `Auto Jailbreaking in: ${countdown}`;
   timerId = setInterval(() => {
     countdown--;
-    label.textContent = `Auto Jailbreaking in: ${countdown}`;
+    if (autoJbBtn) autoJbBtn.textContent = `Auto Jailbreaking in: ${countdown}`;
 
     if (countdown < 0) {
       clearInterval(timerId);
       timerId = null;
-      label.textContent = "Executing";
+      if (autoJbBtn) autoJbBtn.textContent = "Executing";
       runJbWithTimeout();
     }
   }, 1000);
@@ -275,7 +312,8 @@ function finishCache(statusMessage, isError = false) {
     jeilbrekBtn.disabled = true;
     netctrlRadio.disabled = true;
     lapseRadio.disabled = true;
-    checkbox.disabled = true;
+    if (autoJbBtn) autoJbBtn.disabled = true;
+    if (instantJbBtn) instantJbBtn.disabled = true;
     updatePayloadButtonsState();
     stopInterval();
     return;
@@ -288,11 +326,14 @@ function finishCache(statusMessage, isError = false) {
   jeilbrekBtn.disabled = false;
   netctrlRadio.disabled = false;
   lapseRadio.disabled = false;
-  checkbox.disabled = false;
+  if (autoJbBtn) autoJbBtn.disabled = false;
+  if (instantJbBtn) instantJbBtn.disabled = false;
   updatePayloadButtonsState();
 
   // Start auto jailbreak countdown ONLY after caching is successfully finished
-  if (checkbox.checked) {
+  if (instantJbValue) {
+    runJbWithTimeout();
+  } else if (autoJbValue) {
     jailbreakCountdown();
   }
 }
@@ -438,6 +479,23 @@ document.addEventListener("DOMContentLoaded", function () {
   // Update Pass/Fail Stats UI from localStorage
   updateStatsUI();
 
+  // Handle Online/Offline Status
+  const statusText = document.getElementById("status-text");
+  function updateNetworkStatus() {
+    if (statusText) {
+      if (navigator.onLine) {
+        statusText.textContent = "Online";
+        statusText.style.color = "green";
+      } else {
+        statusText.textContent = "Offline (Cached)";
+        statusText.style.color = "blue";
+      }
+    }
+  }
+  window.addEventListener("online", updateNetworkStatus);
+  window.addEventListener("offline", updateNetworkStatus);
+  updateNetworkStatus();
+
   // Choose preferred exploit chain
   if (exploitChain == "netctrl") {
     netctrlRadio.checked = true;
@@ -446,13 +504,15 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Apply autojb localStorage value
-  checkbox.checked = autoJbValue;
+  updateBtnState(autoJbBtn, autoJbValue, "Auto Jailbreak: ON", "Auto Jailbreak: OFF");
+  updateBtnState(instantJbBtn, instantJbValue, "Instant Jailbreak: ON", "Instant Jailbreak: OFF");
 
   // Ensure buttons remain disabled initially
   jeilbrekBtn.disabled = true;
   netctrlRadio.disabled = true;
   lapseRadio.disabled = true;
-  checkbox.disabled = true;
+  if (autoJbBtn) autoJbBtn.disabled = true;
+  if (instantJbBtn) instantJbBtn.disabled = true;
 
   // Start caching process
   handleCache();

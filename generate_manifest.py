@@ -26,7 +26,10 @@ def generate_manifest():
 
     cached_files.sort()
 
-    content = "CACHE MANIFEST\n\nCACHE:\n"
+    import datetime
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    content = f"CACHE MANIFEST\n# Generated at {timestamp}\n\nCACHE:\n"
     content += "\n".join(cached_files)
     content += "\n\nNETWORK:\n*\n"
 

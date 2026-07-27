@@ -8,6 +8,25 @@ function load_script(src, remote = true, transfer = []) {
   });
 }
 
+function load_file_buffer(url) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", url, true);
+    xhr.responseType = "arraybuffer";
+    xhr.onload = function() {
+      if (xhr.status === 200 || xhr.status === 0) {
+        resolve(new Uint8Array(xhr.response));
+      } else {
+        reject(new Error(`Failed to load ${url} (HTTP ${xhr.status})`));
+      }
+    };
+    xhr.onerror = function() {
+      reject(new Error(`Network error loading ${url}`));
+    };
+    xhr.send();
+  });
+}
+
 async function doJb() {
   await load_script("src/misc.js");
 
@@ -122,19 +141,10 @@ async function doJb() {
     if (fn.setuid.invoke(0) === -1) {
       jailbreak();
 
-      const kpatches_rsp = await fetch(`src/ps4/patches/${constants.KPATCH}`);
-      const kpatches_buf = await kpatches_rsp.arrayBuffer();
-      const kpatches_u8 = new Uint8Array(kpatches_buf);
-
+      const kpatches_u8 = await load_file_buffer(`src/ps4/patches/${constants.KPATCH}`);
       kernel_patches(kpatches_u8);
 
-      const bin_rsp = await fetch("src/payload.bin");
-      if (!bin_rsp.ok) {
-        throw new Error(`Failed to load payload from src/payload.bin (HTTP ${bin_rsp.status})`);
-      }
-      const bin_buf = await bin_rsp.arrayBuffer();
-      const bin_u8 = new Uint8Array(bin_buf);
-
+      const bin_u8 = await load_file_buffer("src/payload.bin");
       load_bin(bin_u8);
     }
 
@@ -155,13 +165,7 @@ async function doJb() {
 async function run_standalone_payload(payloadPath) {
   try {
     logger.info(`Loading standalone payload from ${payloadPath}...`);
-    const bin_rsp = await fetch(payloadPath);
-    if (!bin_rsp.ok) {
-      throw new Error(`Failed to fetch payload from ${payloadPath} (HTTP ${bin_rsp.status})`);
-    }
-    const bin_buf = await bin_rsp.arrayBuffer();
-    const bin_u8 = new Uint8Array(bin_buf);
-
+    const bin_u8 = await load_file_buffer(payloadPath);
     load_bin(bin_u8);
     logger.info(`Successfully injected payload ${payloadPath} !!`);
   } catch (e) {

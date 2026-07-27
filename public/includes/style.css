@@ -235,3 +235,40 @@ label:has(input:disabled) {
 .stats-container strong#fail-count {
   color: #ef4444;
 }
+
+.jb-options-flex {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.btn-option {
+  background: #27272a;
+  color: #ffffff;
+  border: 1px solid #3f3f46;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  min-width: 180px;
+}
+
+.btn-option.active {
+  background: #16a34a;
+  border-color: #15803d;
+}
+
+.btn-option:hover:not(:disabled) {
+  background: #3f3f46;
+}
+
+.btn-option.active:hover:not(:disabled) {
+  background: #15803d;
+}
+
+.btn-option:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

@@ -9,6 +9,7 @@
   <body>
     <h1>CSSFontFace UAF Exploit</h1>
     <h3 id="UA">Running on:</h3>
+    <h3 id="network-status">Mode: <span id="status-text" style="font-weight: bold;">Checking...</span></h3>
 
     <hr />
 
@@ -20,9 +21,9 @@
         <label for="lapse-exploit">Lapse</label>
       </form>
       <button id="jeilbrek" disabled>Jeilbrek</button>
-      <div class="autoJb">
-        <label for="autoJbInput" id="autoJbLabel">Auto Jailbreak</label>
-        <input class="mt-2" id="autoJbInput" type="checkbox" disabled />
+      <div class="jb-options-flex">
+        <button id="autoJbBtn" class="btn-option" disabled>Auto Jailbreak: OFF</button>
+        <button id="instantJbBtn" class="btn-option" disabled>Instant Jailbreak: OFF</button>
       </div>
       <div class="stats-container mt-2">
         <span>Pass: <strong id="pass-count">0</strong></span> |
