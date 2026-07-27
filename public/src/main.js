@@ -38,6 +38,19 @@ async function doJb() {
 
     logger.info("===END===");
 
+    // Check if system is already jailbroken via setuid(0) ROP call (syscall 0x17 = 23)
+    const setuid_fn = new NativeFunction(0x17, "number");
+    const setuid_res = setuid_fn.invoke(0);
+    logger.info(`Early jailbreak check (setuid 0) returned: ${setuid_res}`);
+
+    if (setuid_res === 0) {
+      logger.info("System is ALREADY jailbroken! Skipping kernel exploit chain to prevent Kernel Panic.");
+      if (typeof window.onExploitAlreadyDone === "function") {
+        window.onExploitAlreadyDone();
+      }
+      return;
+    }
+
     await load_script("src/loader.js");
     await load_script("src/workers.js");
 
@@ -116,6 +129,9 @@ async function doJb() {
       kernel_patches(kpatches_u8);
 
       const bin_rsp = await fetch("src/payload.bin");
+      if (!bin_rsp.ok) {
+        throw new Error(`Failed to load payload from src/payload.bin (HTTP ${bin_rsp.status})`);
+      }
       const bin_buf = await bin_rsp.arrayBuffer();
       const bin_u8 = new Uint8Array(bin_buf);
 
@@ -123,9 +139,32 @@ async function doJb() {
     }
 
     logger.info("===END===");
+    if (typeof window.onExploitSuccess === "function") {
+      window.onExploitSuccess();
+    }
   } catch (e) {
     logger.error(e.message);
     logger.error(e.stack);
+    if (typeof window.onExploitFail === "function") {
+      window.onExploitFail(e.message || "Execution error");
+    }
     //mem.free_all();
+  }
+}
+
+async function run_standalone_payload(payloadPath) {
+  try {
+    logger.info(`Loading standalone payload from ${payloadPath}...`);
+    const bin_rsp = await fetch(payloadPath);
+    if (!bin_rsp.ok) {
+      throw new Error(`Failed to fetch payload from ${payloadPath} (HTTP ${bin_rsp.status})`);
+    }
+    const bin_buf = await bin_rsp.arrayBuffer();
+    const bin_u8 = new Uint8Array(bin_buf);
+
+    load_bin(bin_u8);
+    logger.info(`Successfully injected payload ${payloadPath} !!`);
+  } catch (e) {
+    logger.error(`Standalone payload error: ${e.message}`);
   }
 }

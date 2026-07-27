@@ -1,21 +1,21 @@
 CACHE MANIFEST
 
 CACHE:
-index.html
-includes/cat.jpg
 includes/script.js
 includes/style.css
-src/payload.bin
+index.html
 src/lapse.js
 src/loader.js
 src/main.js
+src/manifest.js
 src/misc.js
 src/netctrl.js
-src/worker.js
-src/workers.js
+src/payload.bin
+src/payloads/DisableUpdates.bin
+src/payloads/FanThreshold.bin
+src/payloads/KernelDumper.bin
 src/ps4/constants.js
 src/ps4/kernel.js
-src/ps4/userland.js
 src/ps4/patches/1000.bin
 src/ps4/patches/1050.bin
 src/ps4/patches/1100.bin
@@ -31,6 +31,9 @@ src/ps4/patches/850.bin
 src/ps4/patches/900.bin
 src/ps4/patches/903.bin
 src/ps4/patches/950.bin
+src/ps4/userland.js
+src/worker.js
+src/workers.js
 
 NETWORK:
 *
