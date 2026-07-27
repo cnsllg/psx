@@ -111,9 +111,12 @@ function renderPayloadsList(assets) {
   payloadsListElem.className = "payloads-grid";
   payloadsListElem.innerHTML = "";
 
+  const savedAutoPayloads = JSON.parse(localStorage.getItem("autoPayloads") || "{}");
+
   payloadFiles.forEach((path) => {
     const fileName = path.split("/").pop();
     const displayName = fileName.replace(/\.bin$/i, "").replace(/_/g, " ");
+    const isAuto = !!savedAutoPayloads[path];
 
     const card = document.createElement("div");
     card.className = "payload-card";
@@ -122,7 +125,10 @@ function renderPayloadsList(assets) {
         <div class="payload-title">${displayName}</div>
         <div class="payload-file">${path}</div>
       </div>
-      <button class="btn-payload" disabled data-path="${path}">Run Payload</button>
+      <div style="display: flex; gap: 8px; margin-top: 10px;">
+        <button class="btn-payload" disabled data-path="${path}" style="flex: 2;">Run</button>
+        <button class="btn-payload-auto ${isAuto ? 'active' : ''}" data-path="${path}" style="flex: 1; font-size: 12px; padding: 5px;">Auto: ${isAuto ? 'ON' : 'OFF'}</button>
+      </div>
     `;
 
     payloadsListElem.appendChild(card);
@@ -142,6 +148,24 @@ function renderPayloadsList(assets) {
     });
   });
 
+  const autoBtns = document.querySelectorAll(".btn-payload-auto");
+  autoBtns.forEach((btn) => {
+    btn.addEventListener("click", function () {
+      const targetPath = this.getAttribute("data-path");
+      const currentAutoPayloads = JSON.parse(localStorage.getItem("autoPayloads") || "{}");
+      if (currentAutoPayloads[targetPath]) {
+        delete currentAutoPayloads[targetPath];
+        this.classList.remove("active");
+        this.textContent = "Auto: OFF";
+      } else {
+        currentAutoPayloads[targetPath] = true;
+        this.classList.add("active");
+        this.textContent = "Auto: ON";
+      }
+      localStorage.setItem("autoPayloads", JSON.stringify(currentAutoPayloads));
+    });
+  });
+
   updatePayloadButtonsState();
 }
 
@@ -152,7 +176,24 @@ function updatePayloadButtonsState() {
   });
 }
 
-window.onExploitSuccess = function () {
+async function runAutoPayloads() {
+  const savedAutoPayloads = JSON.parse(localStorage.getItem("autoPayloads") || "{}");
+  const payloadPaths = Object.keys(savedAutoPayloads).filter(path => savedAutoPayloads[path]);
+  
+  if (payloadPaths.length > 0) {
+    logConsole(`Found ${payloadPaths.length} auto-payload(s). Executing...`, "info");
+    for (const path of payloadPaths) {
+      if (typeof run_standalone_payload === "function") {
+        await run_standalone_payload(path);
+        // Small delay between payloads to prevent race conditions or crashes
+        await new Promise(resolve => setTimeout(resolve, 1500));
+      }
+    }
+    logConsole(`Auto-payload execution finished!`, "info");
+  }
+}
+
+window.onExploitSuccess = async function () {
   if (!isExploitRunning) return;
   isExploitRunning = false;
   isJailbreakSuccessful = true;
@@ -164,9 +205,10 @@ window.onExploitSuccess = function () {
   incrementPass();
   updatePayloadButtonsState(); // Enable extra payload buttons post-jailbreak!
   collapseConsole(); // Automatically close console on exploit success to give more room for payloads!
+  await runAutoPayloads();
 };
 
-window.onExploitAlreadyDone = function () {
+window.onExploitAlreadyDone = async function () {
   if (!isExploitRunning) return;
   isExploitRunning = false;
   isJailbreakSuccessful = true;
@@ -180,6 +222,7 @@ window.onExploitAlreadyDone = function () {
   jeilbrekBtn.disabled = true;
   updatePayloadButtonsState(); // Enable extra payload buttons directly!
   collapseConsole();
+  await runAutoPayloads();
 };
 
 window.onExploitFail = function (reason) {

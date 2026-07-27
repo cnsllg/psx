@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# Generated at 2026-07-27 11:54:20
+# Generated at 2026-07-27 19:58:04
 
 CACHE:
 includes/script.js
@@ -12,9 +12,7 @@ src/manifest.js
 src/misc.js
 src/netctrl.js
 src/payload.bin
-src/payloads/DisableUpdates.bin
-src/payloads/FanThreshold.bin
-src/payloads/KernelDumper.bin
+src/payloads/fancontrol.bin
 src/ps4/constants.js
 src/ps4/kernel.js
 src/ps4/patches/1000.bin

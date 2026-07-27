@@ -193,6 +193,30 @@ button:hover {
   cursor: not-allowed;
 }
 
+.btn-payload-auto {
+  background: #27272a;
+  color: #ffffff;
+  border: 1px solid #3f3f46;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-payload-auto.active {
+  background: #16a34a;
+  border-color: #15803d;
+}
+
+.btn-payload-auto:hover {
+  background: #3f3f46;
+}
+
+.btn-payload-auto.active:hover {
+  background: #15803d;
+}
+
 #kernel-options {
   margin-bottom: 1rem;
 }
