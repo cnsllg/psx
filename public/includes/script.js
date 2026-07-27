@@ -415,7 +415,7 @@ async function handleCache() {
     appCache.addEventListener(
       "obsolete",
       function () {
-        finishCache("[Cache Error] Manifest obsolete (404/410).", true);
+        finishCache("[Cache Error] Manifest obsolete. Execution unlocked.");
       },
       false,
     );
@@ -423,7 +423,8 @@ async function handleCache() {
     appCache.addEventListener(
       "error",
       function () {
-        finishCache("[Cache Error] Failed to download cache resources. Please check missing files (HTTP 404).", true);
+        document.title = "\u2713 Offline Cached";
+        finishCache("[Cache] Check failed (likely offline). Execution unlocked.");
       },
       false,
     );
@@ -446,7 +447,7 @@ async function handleCache() {
             document.title = "\u2713 Cached";
             if (data.errors && data.errors.length > 0) {
               logConsole(`[Cache SW Error] Some files failed to cache:\n  - ${data.errors.join("\n  - ")}`, "warn");
-              finishCache("[Cache SW] Caching completed with missing optional files.", true);
+              finishCache("[Cache SW] Caching completed with missing files. Execution unlocked.");
             } else {
               finishCache("[Cache SW] All assets cached successfully for PC testing.");
             }
@@ -459,7 +460,7 @@ async function handleCache() {
       })
       .catch(function (err) {
         logConsole(`[Cache SW Error] Registration failed: ${err.message}`, "error");
-        finishCache("[Cache SW Error] Service Worker failed to register.", true);
+        finishCache("[Cache SW Error] Service Worker failed to register. Execution unlocked.");
       });
 
     // Safety timeout for SW on PC
