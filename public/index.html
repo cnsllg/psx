@@ -103,18 +103,6 @@
         </div>
       </div>
 
-      <div class="p-4 border-b border-gray-700 flex flex-col gap-2">
-        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider">Custom Payload</label>
-        <input type="file" id="custom-payload-input" class="hidden" accept=".bin" />
-        <button
-          id="custom-payload-btn"
-          class="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold py-2 rounded transition-colors w-full shadow"
-          disabled
-        >
-          Select & Run .bin File
-        </button>
-      </div>
-
       <div id="payloads-section" class="flex-1 flex flex-col overflow-hidden">
         <div class="p-4 pb-2 border-b border-gray-700">
           <h2 class="text-sm font-bold text-blue-400 uppercase tracking-wider">Available Payloads</h2>
@@ -126,15 +114,12 @@
     </div>
 
     <!-- RIGHT PANEL: Console -->
-    <div id="console-wrapper" class="w-3/5 flex flex-col bg-black h-full">
-      <div class="bg-gray-800 px-4 py-2 flex justify-between items-center border-b border-gray-700">
+    <div id="console-section" class="w-3/5 flex flex-col bg-black h-full">
+      <div
+        id="console-header"
+        class="bg-gray-800 px-4 py-2 flex justify-between items-center border-b border-gray-700 select-none"
+      >
         <span class="text-xs font-bold text-blue-400">System Console Log</span>
-        <!-- <button
-          id="toggle-console-btn"
-          class="text-xs bg-gray-700 hover:bg-gray-600 text-white px-2 py-1 rounded transition-colors border border-gray-600"
-        >
-          Hide Console [-]
-        </button> -->
       </div>
       <pre
         id="console"

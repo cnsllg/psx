@@ -94,36 +94,7 @@ let jbTimeoutId = null;
 let isExploitRunning = false;
 const EXPLOIT_TIMEOUT_MS = 30000; // Default 30 seconds
 
-// Console Toggle & Auto-Collapse
-const consoleWrapper = document.getElementById("console-wrapper");
-const toggleConsoleBtn = document.getElementById("toggle-console-btn");
 
-function collapseConsole() {
-  if (consoleWrapper) {
-    consoleWrapper.classList.add("collapsed");
-    if (toggleConsoleBtn) toggleConsoleBtn.textContent = "Show Console [+]";
-  }
-}
-
-function expandConsole() {
-  if (consoleWrapper) {
-    consoleWrapper.classList.remove("collapsed");
-    if (toggleConsoleBtn) toggleConsoleBtn.textContent = "Hide Console [-]";
-  }
-}
-
-function toggleConsole() {
-  if (!consoleWrapper) return;
-  if (consoleWrapper.classList.contains("collapsed")) {
-    expandConsole();
-  } else {
-    collapseConsole();
-  }
-}
-
-if (toggleConsoleBtn) {
-  toggleConsoleBtn.addEventListener("click", toggleConsole);
-}
 
 let isJailbreakSuccessful = false;
 
@@ -240,7 +211,6 @@ window.onExploitSuccess = async function () {
   if (lapseBtn) lapseBtn.disabled = false;
   
   updatePayloadButtonsState(); // Enable extra payload buttons post-jailbreak!
-  collapseConsole(); // Automatically close console on exploit success to give more room for payloads!
   await runAutoPayloads();
 };
 
@@ -666,47 +636,3 @@ if (clearCacheBtn) {
   });
 }
 
-// Custom Payload Execution
-const customPayloadBtn = document.getElementById("custom-payload-btn");
-const customPayloadInput = document.getElementById("custom-payload-input");
-
-if (customPayloadBtn && customPayloadInput) {
-  customPayloadBtn.addEventListener("click", () => {
-    if (!isJailbreakSuccessful) {
-      showToast("Jailbreak required first!", "error");
-      return;
-    }
-    customPayloadInput.click();
-  });
-
-  customPayloadInput.addEventListener("change", function () {
-    if (this.files && this.files.length > 0) {
-      const file = this.files[0];
-      const reader = new FileReader();
-      
-      reader.onload = function (e) {
-        const buffer = new Uint8Array(e.target.result);
-        logConsole(`Executing custom payload: ${file.name} (${buffer.length} bytes)`, "info");
-        showToast(`Running ${file.name}`, "success");
-        
-        if (typeof load_bin === "function") {
-          try {
-            load_bin(buffer);
-          } catch(err) {
-            logConsole(`Custom payload error: ${err.message}`, "error");
-          }
-        } else {
-          logConsole("load_bin function not available.", "error");
-        }
-      };
-      
-      reader.onerror = function () {
-        logConsole(`Error reading file: ${file.name}`, "error");
-      };
-      
-      reader.readAsArrayBuffer(file);
-    }
-    // Reset input so the same file can be selected again if needed
-    this.value = "";
-  });
-}
