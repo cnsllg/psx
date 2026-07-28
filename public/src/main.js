@@ -57,15 +57,6 @@ async function doJb() {
 
     logger.info("===END===");
 
-    // Check if system is already jailbroken
-    if (fn.setuid.invoke(0) === 0) {
-      logger.info("System is ALREADY jailbroken!");
-      if (typeof window.onExploitAlreadyDone === "function") {
-        window.onExploitAlreadyDone();
-      }
-      return;
-    }
-
     await load_script("src/loader.js");
     await load_script("src/workers.js");
 
@@ -78,6 +69,15 @@ async function doJb() {
         break;
       default:
         logger.info(`Unsupported console ${version.console}`);
+    }
+
+    // Check if system is already jailbroken
+    if (fn.setuid.invoke(0) === 0) {
+      logger.info("System is ALREADY jailbroken!");
+      if (typeof window.onExploitAlreadyDone === "function") {
+        window.onExploitAlreadyDone();
+      }
+      return;
     }
 
     await load_script(`src/${exploitChain}.js`);
