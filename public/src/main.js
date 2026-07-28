@@ -13,14 +13,14 @@ function load_file_buffer(url) {
     const xhr = new XMLHttpRequest();
     xhr.open("GET", url, true);
     xhr.responseType = "arraybuffer";
-    xhr.onload = function() {
+    xhr.onload = function () {
       if (xhr.status === 200 || xhr.status === 0) {
         resolve(new Uint8Array(xhr.response));
       } else {
         reject(new Error(`Failed to load ${url} (HTTP ${xhr.status})`));
       }
     };
-    xhr.onerror = function() {
+    xhr.onerror = function () {
       reject(new Error(`Network error loading ${url}`));
     };
     xhr.send();
@@ -57,13 +57,9 @@ async function doJb() {
 
     logger.info("===END===");
 
-    // Check if system is already jailbroken via setuid(0) ROP call (syscall 0x17 = 23)
-    const setuid_fn = new NativeFunction(0x17, "number");
-    const setuid_res = setuid_fn.invoke(0);
-    logger.info(`Early jailbreak check (setuid 0) returned: ${setuid_res}`);
-
-    if (setuid_res === 0) {
-      logger.info("System is ALREADY jailbroken! Skipping kernel exploit chain to prevent Kernel Panic.");
+    // Check if system is already jailbroken
+    if (fn.setuid.invoke(0) === 0) {
+      logger.info("System is ALREADY jailbroken!");
       if (typeof window.onExploitAlreadyDone === "function") {
         window.onExploitAlreadyDone();
       }
@@ -137,16 +133,13 @@ async function doJb() {
 
     find_all_proc();
 
-    // Avoid reapplying if already done
-    if (fn.setuid.invoke(0) === -1) {
-      jailbreak();
+    jailbreak();
 
-      const kpatches_u8 = await load_file_buffer(`src/ps4/patches/${constants.KPATCH}`);
-      kernel_patches(kpatches_u8);
+    const kpatches_u8 = await load_file_buffer(`src/ps4/patches/${constants.KPATCH}`);
+    kernel_patches(kpatches_u8);
 
-      const bin_u8 = await load_file_buffer("src/payload.bin");
-      load_bin(bin_u8);
-    }
+    const bin_u8 = await load_file_buffer("src/payload.bin");
+    load_bin(bin_u8);
 
     logger.info("===END===");
     if (typeof window.onExploitSuccess === "function") {
